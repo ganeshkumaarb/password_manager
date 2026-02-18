@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head><title>Vault — VaultKey</title></head>
+<body>
+<h1>VaultKey</h1>
+<a href="{{ url_for('add') }}">+ Add Password</a> |
+<a href="{{ url_for('logout') }}">Lock</a>
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}<p>{% for m in messages %}<b>{{ m }}</b>{% endfor %}</p>{% endif %}
+{% endwith %}
+
+<form method="GET">
+  <input type="text" name="q" value="{{ q }}" placeholder="Search…">
+  <button type="submit">Search</button>
+  {% if q %}<a href="{{ url_for('vault') }}">Clear</a>{% endif %}
+</form>
+
+<hr>
+
+{% if entries %}
+<table border="1" cellpadding="6">
+  <tr>
+    <th>Site</th>
+    <th>Username</th>
+    <th>Password</th>
+    <th>URL</th>
+    <th>Notes</th>
+    <th>Actions</th>
+  </tr>
+  {% for e in entries %}
+  <tr>
+    <td>{{ e.site }}</td>
+    <td>{{ e.username }}</td>
+    <td>
+      <span id="pwd-{{ e.id }}">••••••••</span>
+      <button onclick="toggleReveal({{ e.id }})">Show</button>
+      <button onclick="copyPwd({{ e.id }})">Copy</button>
+    </td>
+    <td>{% if e.url %}<a href="{{ e.url }}" target="_blank">{{ e.url }}</a>{% endif %}</td>
+    <td>{{ e.notes }}</td>
+    <td>
+      <a href="{{ url_for('edit', id=e.id) }}">Edit</a> |
+      <form method="POST" action="{{ url_for('delete', id=e.id) }}" style="display:inline"
+            onsubmit="return confirm('Delete {{ e.site }}?')">
+        <button type="submit">Delete</button>
+      </form>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No passwords saved yet. <a href="{{ url_for('add') }}">Add one</a>.</p>
+{% endif %}
+
+<script>
+const revealed = {};
+async function toggleReveal(id) {
+  const el = document.getElementById('pwd-' + id);
+  if (revealed[id]) {
+    el.textContent = '••••••••';
+    delete revealed[id];
+  } else {
+    const r = await fetch('/reveal/' + id);
+    const pwd = await r.text();
+    el.textContent = pwd;
+    revealed[id] = pwd;
+  }
+}
+async function copyPwd(id) {
+  let pwd = revealed[id];
+  if (!pwd) {
+    const r = await fetch('/reveal/' + id);
+    pwd = await r.text();
+  }
+  navigator.clipboard.writeText(pwd);
+  alert('Copied!');
+}
+</script>
+</body>
+</html>

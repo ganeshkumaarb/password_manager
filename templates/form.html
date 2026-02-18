@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head><title>{% if entry %}Edit{% else %}Add{% endif %} Password — VaultKey</title></head>
+<body>
+<h1>{% if entry %}Edit{% else %}Add{% endif %} Password</h1>
+<a href="{{ url_for('vault') }}">← Back to vault</a>
+
+<form method="POST">
+  <p>
+    <label>Site / App Name:<br>
+    <input type="text" name="site" value="{{ entry.site if entry else '' }}" required></label>
+  </p>
+  <p>
+    <label>Username / Email:<br>
+    <input type="text" name="username" value="{{ entry.username if entry else '' }}" required></label>
+  </p>
+  <p>
+    <label>Password:<br>
+    <input type="text" name="password" id="pwdInput" value="{{ pwd }}" required></label>
+    <button type="button" onclick="generatePwd()">Generate</button>
+  </p>
+  <p>
+    <label>URL:<br>
+    <input type="url" name="url" value="{{ entry.url if entry else '' }}"></label>
+  </p>
+  <p>
+    <label>Notes:<br>
+    <textarea name="notes">{{ entry.notes if entry else '' }}</textarea></label>
+  </p>
+  <p>
+    <button type="submit">{% if entry %}Save Changes{% else %}Save Password{% endif %}</button>
+    <a href="{{ url_for('vault') }}">Cancel</a>
+  </p>
+</form>
+
+<script>
+async function generatePwd() {
+  const r = await fetch('/generate');
+  document.getElementById('pwdInput').value = await r.text();
+}
+</script>
+</body>
+</html>

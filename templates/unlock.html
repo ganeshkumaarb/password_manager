@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head><title>Unlock — VaultKey</title></head>
+<body>
+<h1>VaultKey</h1>
+{% if error %}<p><b>Error: {{ error }}</b></p>{% endif %}
+<form method="POST">
+  <p>
+    <label>Master Password:<br>
+    <input type="password" name="password" required autofocus></label>
+  </p>
+  <p><button type="submit">Unlock</button></p>
+</form>
+</body>
+</html>
